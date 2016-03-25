@@ -24,24 +24,21 @@
 
 @section('content')
 
-@if ($collection->hasHeaderImage())
-<section class="header-image" style="background-image: url({{ $collection->getHeaderImage() }}); text-shadow:0px 1px 0px {{ $collection->title_shadow }}; color: {{ $collection->title_color }}">
-@else
-<section class="header-image">
-@endif
-    <div class="header-body">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8 col-md-offset-2 text-center">
-                        <h1>{{ $collection->name }}</h1>
-                        <p class="bottom-space">
-                            <b>{{ $collection->user->name }}</b> &nbsp;|&nbsp; 
-                            počet diel <b>{{ $collection->items()->count() }}</b> &nbsp;|&nbsp; 
-                            vytvorené <b>{{ $collection->created_at->format('d. m. Y') }}</b>
-                        </p>
-                </div>
+<div class="webumeniaCarousel">
 
-            </div>
+@if ($collection->hasHeaderImage())
+<div class="header-image" style="background-image: url({{ $collection->getHeaderImage() }}); color: {{ $collection->title_color }}">
+@else
+<div class="header-image">
+@endif
+    <div class="outer-box">
+        <div class="inner-box">
+            <h1>{{ $collection->name }}</h1>
+            <p class="bottom-space">
+                {{ $collection->items()->count() }} diel &nbsp;&middot;&nbsp; 
+                {{ $collection->user->name }} &nbsp;&middot;&nbsp; 
+                {{ $collection->created_at->format('d. m. Y') }}
+            </p>
         </div>
     </div>
 
@@ -54,7 +51,8 @@
             <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
     </div>
     </div> --}}
-</section>
+</div>
+</div>
 
 <section class="collection content-section">
     <div class="collection-body">

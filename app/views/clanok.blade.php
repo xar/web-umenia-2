@@ -24,26 +24,22 @@
 
 @section('content')
 
-<section class="header-image" style="background-image: url({{ $article->getHeaderImage() }}); text-shadow:0px 1px 0px {{ $article->title_shadow }}; color: {{ $article->title_color }}">
-    <div class="header-body">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8 col-md-offset-2 text-center">
-                        @if ($article->category)
-                            <h2>{{ $article->category->name }}</h2>
-                        @endif
-                        <h1>{{ $article->title }}</h1>
-                        <p class="bottom-space">
-                            <b><a href="{{ url_to( 'clanky', ['author' => $article->author ]) }}" style="text-shadow:0px 1px 0px {{ $article->title_shadow }}; color: {{ $article->title_color }}">{{ $article->author }}</a></b> &nbsp;|&nbsp; 
-                            vytvorené <b>{{ $article->published_date }}</b>
-                        </p>
-                </div>
-
-            </div>
+<div class="webumeniaCarousel">
+<div class="header-image" style="background-image: url({{ $article->getHeaderImage() }}); text-shadow:0px 1px 0px {{ $article->title_shadow }}; color: {{ $article->title_color }}">
+    <div class="outer-box">
+        <div class="inner-box">
+            @if ($article->category)
+                <h2>{{ $article->category->name }}</h2>
+            @endif
+            <h1>{{ $article->title }}</h1>
+            <p class="bottom-space">
+                <a href="{{ url_to( 'clanky', ['author' => $article->author ]) }}" style="color: {{ $article->title_color }}">{{ $article->author }}</a> &nbsp;&middot;&nbsp; 
+                {{ $article->published_date }}
+            </p>
         </div>
     </div>
-
-</section>
+</div>
+</div>
 
 {{-- <section class="article summary light-grey content-section">
         <div class="container">

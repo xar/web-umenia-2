@@ -435,4 +435,13 @@ class Authority extends Eloquent {
 		return $associative_relationships;
 	}
 
+	public static function amount($custom_parameters = []) {
+		$params = array();
+		foreach ($custom_parameters as $attribute => $value) {
+			$params["query"]["filtered"]["filter"]["and"][]["term"][$attribute] = $value;
+		}
+		$authorities = self::search($params);
+		return $authorities->total();
+	}
+
 }

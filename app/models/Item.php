@@ -738,4 +738,13 @@ class Item extends Eloquent {
 		return self::search($params);
 	}
 
+	public static function amount($custom_parameters = []) {
+		$params = array();
+		foreach ($custom_parameters as $attribute => $value) {
+			$params["query"]["filtered"]["filter"]["and"][]["term"][$attribute] = $value;
+		}
+		$items = self::search($params);
+		return $items->total();
+	}
+
 }

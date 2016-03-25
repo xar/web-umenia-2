@@ -31,65 +31,32 @@
 
 @section('content')
 
-    <div id="webumeniaCarousel" class="carousel slide carousel-fade" data-ride="carousel">
-      {{-- <div class="container"> --}}
-      <!-- Indicators -->
-        <ol class="carousel-indicators">
-          <li data-target="#webumeniaCarousel" data-slide-to="0" class="active"></li>
-          <li data-target="#webumeniaCarousel" data-slide-to="1"></li>
-          <li data-target="#webumeniaCarousel" data-slide-to="2"></li>
-          <li data-target="#webumeniaCarousel" data-slide-to="3"></li>
-        </ol>
-
-      <div class="carousel-inner" role="listbox">
-
-        <div class="item active">
-            <a href="/kolekcia/47" class="header-image text-center" style="background-image: url(/images/intro/skicare.jpg); text-shadow:0px 1px 0px #777; color: #fff">
-                <div class="header-body">
-                    <h2>kolekcia</h2>
-                    <h1>Skicáre</h1>
-                    <h2>Uchovávanie sveta</h2>
+<div class="webumeniaCarousel">
+    @foreach ($slides as $slide)
+        <div class="gallery-cell"  style="background-image: url({{ $slide->image_path }})">
+            <a href="{{ $slide->url }}" class="outer-box" data-id="{{ $slide->id }}" >
+                <div class="inner-box">
+                    <h1>{{ $slide->title }}</h1>
+                    @if ($slide->subtitle)
+                        <h2>{{ $slide->subtitle }}</h2>
+                    @endif
                 </div>
             </a>
-        </div>
+        </div>        
+    @endforeach
+</div>
 
-        <div class="item">
-            <a href="/kolekcia/50" class="header-image text-center" style="background-image: url(/images/intro/zima.jpg); text-shadow:0px 1px 0px #777; color: #fff">
-                <div class="header-body">
-                    <h2>kolekcia</h2>
-                    <h1>Zima na Slovensku</h1>
-                    {{-- <h3>farby a nálady jesene na plátnach maliarov</h3> --}}
-                </div>
-            </a>
+<section class="intro light-grey content-section">
+    <div class="intro-body">
+        <div class="container">
+            <p class="lead tagline text-center">
+                Web umenia je on-line katalóg <strong><a href="/katalog">{{ formatNum(Item::amount()) }}</a></strong> výtvarných diel<br>
+                {{ Subtitle::random() }}</p>
         </div>
-
-        <div class="item">
-            <a href="/kolekcia/51" class="header-image text-center" style="background-image: url(/images/intro/kabinety_gmb.jpg); text-shadow:0px 1px 0px #777; color: #fff">
-                <div class="header-body">
-                    <h2>kolekcia</h2>
-                    <h1>Grafické kabinety</h1>
-                    <h2>v Mirbachovom paláci</h2>
-                </div>
-            </a>
-        </div>
-
-        <div class="item">
-            <a href="/kolekcia/49" class="header-image text-center" style="background-image: url(/images/kolekcie/49.jpg); text-shadow:0px 1px 0px #777; color: #fff">
-                <div class="header-body">
-                    <h2>kolekcia</h2>
-                    <h1>Ona je madona</h1>
-                </div>
-            </a>
-        </div>
-
-      </div>
-      {{-- <div class="pull-center">
-        <a class="carousel-control left" href="#webumeniaCarousel" data-slide="prev">‹</a>
-        <a class="carousel-control right" href="#webumeniaCarousel" data-slide="next">›</a>
-      </div> --}}
     </div>
+</section>
 
-<section class="articles light-grey content-section">
+<section class="articles content-section">
     <div class="articles-body">
         <div class="container">
             <div class="row">
@@ -131,6 +98,34 @@
 @section('javascript')
 
 <script type="text/javascript">
+$(document).ready(function(){
+    var $carousel = $('.webumeniaCarousel').flickity({
+      wrapAround: true,
+      percentPosition: false,
+      // setGallerySize: false,
+      // resize: false,
+      arrowShape: 'M42.7 15.5c1.1 0 2.1 0.4 2.9 1.2s1.2 1.8 1.2 2.9c0 1.2-0.4 2.1-1.2 2.9L23.7 44.5h64.5c1.1 0 2.1 0.4 2.9 1.2 0.8 0.8 1.2 1.8 1.2 2.9s-0.4 2.1-1.2 2.9c-0.8 0.8-1.8 1.2-2.9 1.2h-64.5l21.9 21.9c0.8 0.8 1.2 1.8 1.2 2.9 0 1.1-0.4 2.1-1.2 2.9 -0.8 0.8-1.8 1.2-2.9 1.2 -1.2 0-2.1-0.4-2.9-1.2L10.8 51.6c-0.8-0.8-1.2-1.8-1.2-2.9 0-1.1 0.4-2.1 1.2-2.9l29-29c0.8-0.8 1.8-1.2 2.9-1.2V15.5z'
+    });
+    $carousel.children('.flickity-page-dots').css('left',  parseInt($('.flickity-slider').css('transform').split(',')[4]) );
+
+    $carousel.on( 'staticClick', function( event, pointer, cellElement, cellIndex ) {
+        event.preventDefault();
+        var $link = $( cellElement ).find('a');
+        var url = $link.attr('href');
+        var id = $link.data('id');
+        $.get('/slideClicked', {'id': id});
+
+    });
+
+});
+
+$(window).on('resize',function() {
+    if ( $( ".flickity-slider" ).length ) {
+        setTimeout(function(){
+          $('.webumeniaCarousel').children('.flickity-page-dots').css('left',  parseInt($('.flickity-slider').css('transform').split(',')[4]) );
+        }, 200);            
+    }
+});
 
 </script>
 @stop

@@ -18,9 +18,25 @@ Route::get('leto', function()
 
 Route::get('/', function()
 {
+	$slides = Slide::published()->orderBy('id', 'desc')->get();
 	$articles = Article::promoted()->published()->orderBy('published_date', 'desc')->get();
-	return View::make('intro', array('articles'=>$articles));
-	// return Redirect::to('katalog');
+
+	return View::make('intro', [
+		'slides'=>$slides, 
+		'articles'=>$articles, 
+	]);
+});
+
+
+
+Route::get('slideClicked', function() {
+	$slide = Slide::find(Input::get('id'));
+	if ($slide) {
+		$slide->click_count += 1;
+		$slide->save();
+		return Response::json( ['status' => 'success'] );
+
+	}
 });
 
 Route::get('objednavka', function()
@@ -253,6 +269,7 @@ Route::group(array('before' => 'auth'), function(){
 	Route::match(['get','post'],'uploader','FileuploaderController@upload');
 
 	Route::resource('sketchbook', 'SketchbookController');
+	Route::resource('slide', 'SlideController');
 	Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 });
 

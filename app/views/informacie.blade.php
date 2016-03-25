@@ -14,7 +14,7 @@ Informácie |
                     <h1>Čo je web umenia?</h1>
             </div>
         </div>
-        <div class="row bottom-space">
+        <div class="row bottom-space vertical-align">
             <div class="col-md-4">
 
                 <p class="lead">Web umenia je <strong>on-line katalóg</strong> výtvarných diel zo zbierok <strong>slovenských galérií</strong> evidovaných v&nbsp;Centrálnej evidencii diel výtvarného umenia. </p>
@@ -23,7 +23,7 @@ Informácie |
 
             </div>
             <div class="col-md-4 text-center">
-                <img srcset="/images/galerie-na-mape.png 1x, /images/galerie-na-mape@2x.png 2x" src="" alt="Galérie na mape" class="img-responsive" style="margin: 20px auto" />
+                <img srcset="/images/galerie-na-mape.png 1x, /images/galerie-na-mape@2x.png 2x" src="" alt="Galérie na mape" class="img-responsive" style="margin: 20px auto 40px" />
             </div>
             <div class="col-md-4 text-center">
                 <ul class="list-unstyled lead">

@@ -106,17 +106,22 @@
                         @endif
                         @if (Entrust::hasRole('admin'))
                         <li>
+                            <a href="{{ URL::to('slide') }}"><i class="fa fa-exchange fa-fw"></i> Carousel</a>
+                        </li>
+                        @endif
+                        @if (Entrust::hasRole('admin'))
+                        <li>
+                            <a href="{{ URL::to('sketchbook') }}"><i class="fa fa-book fa-fw"></i> Skicáre</a>
+                        </li>
+                        @endif
+                        @if (Entrust::hasRole('admin'))
+                        <li>
                             <a href="{{ URL::to('harvests') }}"><i class="fa fa-download fa-fw"></i> Spice Harvester</a>
                         </li>
                         @endif
                         @if (Entrust::hasRole('admin'))
                         <li>
                             <a href="{{ URL::to('user') }}"><i class="fa fa-male fa-fw"></i> Užívatelia</a>
-                        </li>
-                        @endif
-                        @if (Entrust::hasRole('admin'))
-                        <li>
-                            <a href="{{ URL::to('sketchbook') }}"><i class="fa fa-book fa-fw"></i> Skicáre</a>
                         </li>
                         @endif
                         @if (Entrust::hasRole('admin'))

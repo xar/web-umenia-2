@@ -185,3 +185,10 @@
 
         return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
     }
+
+    function formatNum($num, $decimals = 0)
+    {
+        return number_format($num,$decimals,',', ' ');
+    }
+
+

@@ -53,6 +53,7 @@ return array(
 	*/
 
 	'locale' => 'sk',
+	'fallback_locale' => 'en',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -117,6 +118,7 @@ return array(
 		'Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider',
 		'Zizaco\Entrust\EntrustServiceProvider',
 		'Roumen\Sitemap\SitemapServiceProvider',
+		'Cviebrock\ImageValidator\ImageValidatorServiceProvider',
 	),
 
 	/*

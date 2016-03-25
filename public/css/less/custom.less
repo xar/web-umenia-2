@@ -5,11 +5,12 @@
 @dark: #555954;
 @light: #fff;
 @red: #ce2525;
-@light-grey: #f2f2f2;
+@light-grey: #f0f0f0;
 @mid-grey: #cdcdcd;
-@grey: #999999;
-@dark-grey: #282828;
+@grey: #969696;
+@dark-grey: #5b5d5c;
 @primary-color: #66ccf4;
+@shadow-color: #777;
 
 @link-color: @primary;
 @link-hover-color: @primary-color;
@@ -68,10 +69,13 @@ html {
 // Typhography
 
 h1 {
-  color: @dark-grey;
+  // color: @dark-grey;
   font-weight: 600;
   // font-size: 36px;
   margin-top: 0px;
+}
+.info, .item, .author {
+  h1 { color: @dark-grey; }
 }
 
 strong {font-weight: 600;}
@@ -247,82 +251,98 @@ a:focus {
 }
 
 
- // Full Page Image Intro Section
+.webumeniaCarousel {
+  background: @light-grey;
+  height: 320px;
+  overflow: hidden;
+}
 
- .header-image {
+.flickity-enabled {
+  overflow: visible !important;
+}
+
+.gallery-cell, .flickity-page-dots, .header-image {
+  width: 100%;
+  margin: auto;
+  @media (min-width: @screen-sm-min) {
+    width: @container-sm - @grid-gutter-width;
+  }
+  @media (min-width: @screen-md-min) {
+    width: @container-md - @grid-gutter-width;
+  }
+  @media (min-width: @screen-lg-min) {
+    width: @container-lg - @grid-gutter-width;
+  }
+}
+
+.flickity-page-dots {
+  text-align: right;
+}
+
+.gallery-cell {
+  margin-right: 20px;
+}
+
+.gallery-cell, .header-image {
+  height: 320px;
+  color: @light;
+  & a {color: @light;}
+
+  text-shadow:0px 1px 0px @shadow-color;
+  background: @dark-grey;
+  background-position:center;background-size:cover; 
+
+  .outer-box {
     display: table;
     width: 100%;
-    height: 70%;
-    padding: 0;
+    height: 100%;
     text-align: center;
-    color: @light;
-    text-shadow:0px 1px 0px @grey;
-
-    background: @light-grey no-repeat center center scroll;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    background-size: cover;
-    -o-background-size: cover;
-
-
-    h1 {
-      letter-spacing: 1px;
-      color: inherit;
-      font-size: 86px;
-      font-weight: 600;
-
-    }
-    h2 { color: inherit; font-size: @font-size-h1; font-weight: 600; }
-
-    &.intro404 {
-        background: url(../images/vizual-404.jpg) no-repeat center center scroll;
-        -webkit-background-size: cover;
-        -moz-background-size: cover;
-        background-size: cover;
-        -o-background-size: cover;
-    }
-
-    a {
-      color: @light;
-      border-bottom: 1px solid transparent;
-      &:hover {
-        border-bottom: 1px solid @light;
-      }
-    }
-}
-
-@media(max-width: @screen-xs-max) {
-  .header-image {
-    h1 { font-size: 42px; }
   }
-}
-
-#webumeniaCarousel {
-  height: 70% !important;
-  .item,.active{height:100%;}
-  .carousel-inner{height:100%;}
-  .header-image {width:100%;height:100%;background-position:center;background-size:cover; vertical-align: center; }
-  .carousel-indicators {
-    position: absolute;
-    top: 10px;
-    height: 10px;
-    // right: 5%;
-    bottom: auto;
-    // left: auto;
-    // z-index: 15;
-    width: 70%;
-    // margin-left: -30%;
-    // padding-left: 0;
-    // list-style: none;
-    text-align: right;
-  }
-}
-
-.header-body {
+  .inner-box {
     display: table-cell;
     vertical-align: middle;
-    padding-bottom: 70px;
+    width: 100%;
+  }
+
+  h1,h2 {
+    font-weight: 200;
+  }
+  p {
+    font-weight: 400;
+  }
+  b {
+    font-weight: 400;
+  }
+  h1 {
+      font-size: 64px;
+      line-height: 52px;
+    @media (min-width: @screen-md-min) {
+      font-size: 82px;
+      line-height: 72px;
+    }
+  }
+  h2 {
+    // font-size: px;
+  }
 }
+
+p.tagline {
+  margin-bottom: 0px;
+  color: @grey;
+  strong {
+    color: @dark-grey;
+  }
+  a {
+    border-bottom: 2px solid transparent;
+    &:hover {
+      border-bottom: 2px solid @dark-grey;
+      // text-decoration: underline;
+    }
+  }
+}
+
+// ************************************************************************
+
 
 @media(max-width: @screen-xs-max) {
   .header-body {
@@ -342,6 +362,10 @@ a:focus {
   p {
     font-size: 15px;
     // font-weight: 300;
+    img {
+      max-width: 100%;
+      margin: 15px auto;
+    }
   }
 }
 
@@ -1020,4 +1044,15 @@ a.nav-arrow {
 label sup {
   color: @brand-danger;
   padding-left: 2px;
+}
+
+@media (min-width: @screen-md-min) { 
+    .row.vertical-align {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.text-center .img-responsive {
+  margin: auto;
 }

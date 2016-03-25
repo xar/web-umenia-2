@@ -9,7 +9,7 @@
 		"caseyamcl/Phpoaipmh": "dev-master",
 		"intervention/image": "dev-master",
 		"orangehill/iseed": "1.1",
-		"ipalaus/geonames": "dev-master",
+		"ipalaus/geonames": "1.*",
 		"dinesh/bugonemail": "dev-master",
 		"anahkiasen/former": "dev-master",
 		"guzzlehttp/guzzle": "~5.0",
@@ -20,7 +20,8 @@
 		"pda/pheanstalk": "~2.0",
 		"rap2hpoutre/laravel-log-viewer": "0.2.*",
 		"zizaco/entrust": "1.2.*@dev",
-		"roumen/sitemap": "2.4.*"
+		"roumen/sitemap": "2.4.*",
+		"cviebrock/image-validator": "1.0.*"
 	},
 	"autoload": {
 		"classmap": [

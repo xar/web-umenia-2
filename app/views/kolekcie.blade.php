@@ -102,9 +102,9 @@ kolekcie |
                     </a>
                 </div>
                 <div class="collection-meta grey">
-                   {{--  {{ $collection->author }} &#9679;  --}}
-                    {{ $collection->created_at->format('d. m. Y') }} &#9679; 
-                    {{ $collection->user->name }} &#9679; 
+                   {{--  {{ $collection->author }} &nbsp;&middot;&nbsp; --}}
+                    {{ $collection->created_at->format('d. m. Y') }} &nbsp;&middot;&nbsp;
+                    {{ $collection->user->name }} &nbsp;&middot;&nbsp;
                     {{ $collection->items->count() }} diel
                 </div>
                 <div>
