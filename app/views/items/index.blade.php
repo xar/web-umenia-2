@@ -31,7 +31,10 @@ diela |
                 <a href="{{ URL::to('item/reindex') }}" class="btn btn-primary btn-outline"><i class="fa fa-refresh"></i> Reindexovať search</a>
                 <a href="{{ URL::to('item/geodata') }}" class="btn btn-primary btn-outline"><i class="fa fa-globe"></i> Doplniť geo dáta</a></div>
                 <div class="panel-heading">
-                Akcie pre vybraté: {{ Form::select('collection', $collections); }} {{ Form::submit('Pridať do kolekcie', array('class' => 'btn btn-info btn-xs btn-outline')) }} | <a href="#" id="deleteSelected" class="btn btn-danger btn-xs btn-outline">Zmazať</a>
+                Akcie pre vybraté: 
+                    {{ Form::select('collection', $collections); }} 
+                    {{ Form::submit('Pridať do kolekcie', array('class' => 'btn btn-info btn-xs btn-outline')) }} | <a href="#" id="refreshSelected" class="btn btn-warning btn-xs btn-outline">Refresh z OAI-PMH</a> 
+                    | <a href="#" id="deleteSelected" class="btn btn-danger btn-xs btn-outline">Zmazať</a>
             </div>
             <!-- /.panel-heading -->
             <div class="panel-body">
@@ -120,6 +123,13 @@ $('#deleteSelected').on('click', function(e){
             $form.attr("action","{{ URL::to('item/destroySelected') }}");
             $form.trigger('submit');
         });
+});
+
+$('#refreshSelected').on('click', function(e){
+    var $form=$(this).closest('form');
+    e.preventDefault();
+    $form.attr("action","{{ URL::to('item/refreshSelected') }}");
+    $form.trigger('submit');
 });
 </script>
 @stop

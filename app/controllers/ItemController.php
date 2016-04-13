@@ -235,7 +235,7 @@ class ItemController extends \BaseController {
 	}
 
 	/**
-	 * Fill the collection with items
+	 * Destroy selected items
 	 *
 	 * @param  
 	 * @return Response
@@ -258,6 +258,24 @@ class ItemController extends \BaseController {
 			}
 		}		
 		return Redirect::back()->withMessage('Bolo zmazaných ' . count($items) . ' diel');
+	}
+
+	/**
+	 * Refresh selected items with data from OAI-PMH source
+	 *
+	 * @param  
+	 * @return Response
+	 */
+	public function refreshSelected()
+	{
+		$items = Input::get('ids');
+		if (!empty($items) > 0) {
+			foreach ($items as $item_id) {
+				$item = Item::find($item_id);
+				App::make('SpiceHarvesterController')->refreshSingleRecord($item->record->id);
+			}
+		}		
+		return Redirect::back()->withMessage('Pre ' . count($items) . ' diel boli načítané dáta z OAI');
 	}
 
 	public function reindex()

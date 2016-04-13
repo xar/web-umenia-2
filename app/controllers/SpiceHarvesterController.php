@@ -14,6 +14,14 @@ class SpiceHarvesterController extends \BaseController {
     protected $exclude_prefix = array('x', 'z');
     protected $log;
 
+
+    public function __construct()
+    {
+		$logFile = 'oai_harvest.log';
+		$this->log = new Monolog\Logger('oai_harvest');
+		$this->log->pushHandler(new Monolog\Handler\StreamHandler(storage_path().'/logs/'.$logFile, Monolog\Logger::WARNING)); 	
+	}
+
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -205,10 +213,6 @@ class SpiceHarvesterController extends \BaseController {
 	public function launch($id)
 	{
 		// $vendorDir = base_path() . '/vendor'; include($vendorDir . '/imsop/simplexml_debug/src/simplexml_dump.php'); include($vendorDir . '/imsop/simplexml_debug/src/simplexml_tree.php');
-		$logFile = 'oai_harvest.log';
-		$this->log = new Monolog\Logger('oai_harvest');
-		$this->log->pushHandler(new Monolog\Handler\StreamHandler(storage_path().'/logs/'.$logFile, Monolog\Logger::WARNING));
-
 		Debugbar::disable();
 		$reindex = Input::get('reindex', false);
 		$processed_items = 0;
@@ -325,18 +329,19 @@ class SpiceHarvesterController extends \BaseController {
 
 	public function refreshRecord($record_id)
 	{
+		$this->refreshSingleRecord($record_id);
+		$message = 'Pre záznam boli úspešne načítané dáta z OAI';
+		Session::flash('message', $message);
+		return Redirect::back();
+	}
+
+	public function refreshSingleRecord($record_id)
+	{
 		$record = SpiceHarvesterRecord::find($record_id);
 		$harvest = $record->harvest;
 		$myEndpoint = $this->getEndpoint($harvest); 
 		$rec = $myEndpoint->getRecord($record->item_id, $harvest->metadata_prefix);
-		// $vendorDir = base_path() . '/vendor'; include($vendorDir . '/imsop/simplexml_debug/src/simplexml_dump.php'); include($vendorDir . '/imsop/simplexml_debug/src/simplexml_tree.php');
-		// simplexml_tree($rec->GetRecord->record);  dd();
-		// foreach($recs->GetRecord as $rec) {
-			$this->updateRecord($record, $rec->GetRecord->record, $harvest->type);
-		// }
-		$message = 'Pre záznam boli úspešne načítané dáta z OAI';
-		Session::flash('message', $message);
-		return Redirect::back();
+		return $this->updateRecord($record, $rec->GetRecord->record, $harvest->type);
 	}
 
 

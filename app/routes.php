@@ -252,6 +252,7 @@ Route::group(array('before' => 'auth'), function(){
 	Route::get('item/backup', 'ItemController@backup');
 	Route::get('item/geodata', 'ItemController@geodata');
 	Route::post('item/destroySelected', 'ItemController@destroySelected');
+	Route::post('item/refreshSelected', 'ItemController@refreshSelected');
 	Route::get('item/search', 'ItemController@search');
 	Route::get('item/reindex', 'ItemController@reindex');
 	Route::resource('item', 'ItemController');

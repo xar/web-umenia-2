@@ -186,7 +186,7 @@ class Item extends Eloquent {
 
 	public function getOaiUrl()
 	{
-		return Config::get('app.old_url').'/oai-pmh-new/?verb=GetRecord&metadataPrefix=oai_dc&identifier='.$this->id;
+		return Config::get('app.old_url').'/oai-pmh/?verb=GetRecord&metadataPrefix=oai_dc&identifier='.$this->id;
 	}
 
 	public function moreLikeThis($size = 10) {
