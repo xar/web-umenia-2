@@ -126,7 +126,7 @@ Informácie |
             </div>
             <div class="col-md-4">
                 <p class="lead">
-                    Sme otvorení <strong>ďaľším <br>formám&nbsp;spolupráce</strong>.
+                    Sme otvorení <strong>ďalším <br>formám&nbsp;spolupráce</strong>.
                 </p>
                 <p>
                     Sme však otvorení iným formám spolupráce, čoskoro zverejníme časť výtvarných diel ako otvorené dáta. Ak viete napríklad o niektorom z autorov viac informácií, alebo ste na jeho profile u nás nenašli fotografiu, budeme radi ak nám pomôžete pri ich doplnení. Napíšte nám na <a href="mailto:lab@sng.sk">lab@sng.sk</a>, spojíme sa s vami.
