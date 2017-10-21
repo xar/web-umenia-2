@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Importers\MgImporter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Validator;
@@ -138,13 +139,28 @@ class ImportController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function destroy($id)
-    {
+    public function destroy($id) {
         $import = Import::find($id);
         $name = $import->name;
         $import->delete();
         return redirect()->route('imports.index')->with('message', 'Import <code>'.$name.'</code>  bol zmazaný');
         ;
+    }
+
+    public function launch($import, $file) {
+
+        \Debugbar::disable();
+
+        $importer = new MgImporter();
+        $importer->import($file);
+
+
+        if (\App::runningInConsole()) {
+            echo \Session::get('message') . "\n";
+            return true;
+        }
+
+        return redirect(route('imports.index'));
     }
 
 	/**
@@ -154,7 +170,7 @@ class ImportController extends Controller
 	 * @param  CSV file $file
 	 * @return Response
 	 */
-	public function launch($import, $file)
+	public function _launch($import, $file)
 	{
 
 		\Debugbar::disable();
@@ -221,7 +237,7 @@ class ImportController extends Controller
                 if (empty($row['PorC_S']) || !is_numeric($row['PorC_S'])) {
                     $this_import_record->wrong_items++;
                     // echo($id . ' ' . $row['Rada_S']. $row['PorC_S'] . "\n");
-                } elseif ($row['Plus2T']!='ODPIS') {
+                } elseif ($row['Plus2T']!='ODPIS') {//
 
                     $gallery = 'Moravská galerie, MG';
                     $prefix = 'CZE:MG.';
@@ -236,7 +252,7 @@ class ImportController extends Controller
                         $identifier .= '/' .$suffix;
                     }
 
-                    
+
                     $item = Item::firstOrNew(['id' => $id]);
                     $item->identifier = $identifier;
                     $item->gallery = $gallery;
@@ -256,7 +272,7 @@ class ImportController extends Controller
                     $item->inscription = $row['Sign'];
                     $work_type = Import::getWorkType($row['Skupina'], $row['Podskup'], $row['Predmet']);
                     $item->work_type = $work_type;
-                    
+
                     // detect bienale
                     if (strpos( $row['Okolnosti'], 'BB' ) !== false ) {
                         $item->relationship_type = 'ze souboru';
@@ -267,13 +283,13 @@ class ImportController extends Controller
                     $item->state_edition = $row['Puvodnost'];
 
                     if ($images) {
-                        $item_image_files = array_filter($images, function ($object) use ($image_file) { 
+                        $item_image_files = array_filter($images, function ($object) use ($image_file) {
                             return (
-                                $object['type'] === 'file' && 
-                                ($object['extension'] === 'jpg' || $object['extension'] === 'JPG' || 
+                                $object['type'] === 'file' &&
+                                ($object['extension'] === 'jpg' || $object['extension'] === 'JPG' ||
                                     $object['extension'] === 'jpeg' || $object['extension'] === 'JPEG') &&
                                 strpos($object['filename'], $image_file) === 0
-                                ); 
+                                );
                         });
                         if (!empty($item_image_files)) {
                             $item_image_file = reset($item_image_files);
