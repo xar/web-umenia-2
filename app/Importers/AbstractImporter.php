@@ -5,7 +5,9 @@ namespace App\Importers;
 use App\Import;
 use App\ImportRecord;
 use App\Item;
+use App\Repositories\IFileRepository;
 use Intervention\Image\Image;
+use Symfony\Component\Console\Exception\LogicException;
 
 
 abstract class AbstractImporter {
@@ -22,15 +24,29 @@ abstract class AbstractImporter {
     /** @var array */
     protected $defaults = [];
 
-    /** @var IRepository */
+    /** @var IFileRepository */
     protected $repository;
 
-    const IMAGE_MAX_SIZE = 800;
+    /** @var int */
+    protected $image_max_size = 800;
+
+    /** @var string */
+    protected $iipimg_url_format = 'https://www.webumenia.sk/fcgi-bin/iipsrv.fcgi?DeepZoom=%s.dzi';
+
+    /** @var string */
+    protected $name;
 
     /**
-     * @param IRepository $repository
+     * @param IFileRepository $repository
      */
-    public function __construct(IRepository $repository) {
+    public function __construct(IFileRepository $repository) {
+        if ($this->name === null) {
+            throw new LogicException(sprintf(
+                '%s needs to define its $name property',
+                get_class($this)
+            ));
+        }
+
         $this->repository = $repository;
     }
 
@@ -47,58 +63,36 @@ abstract class AbstractImporter {
     abstract protected function getItemImageFilename(array $record);
 
     /**
-     * @param string $filename
-     * @param string $image_file
+     * @param string $csv_filename
+     * @param string $image_filename
      * @return string
      */
-    abstract protected function getItemIipImage($filename, $image_file);
+    abstract protected function getItemIipImageUrl($csv_filename, $image_filename);
 
     /**
      * @param Import $import
-     * @param mixed $file
+     * @param array $file
+     * @return Item[]
      */
-    public function import(Import $import, $file) {
-        // todo restrict to only one type
-        $filename = (is_array($file)) ? $file['basename'] : $file->getClientOriginalName();
-
+    public function import(Import $import, array $file)
+    {
         $import_record = $this->createImportRecord(
             $import->id,
             Import::STATUS_IN_PROGRESS,
             date('Y-m-d H:i:s'),
-            $filename
+            $file['basename']
         );
 
-        $records = $this->repository->getFiltered($filename, $this->filters, $this->options);
+        $records = $this->repository->getFiltered(
+            storage_path(sprintf('app/%s', $file['path'])),
+            $this->filters,
+            $this->options
+        );
 
         $items = [];
         foreach ($records as $record) {
-            try {
-                $item = $this->createItem($record);
-            } catch (\Exception $e) {
-                $import_record->wrong_items++;
-                throw $e;
-            }
-
-            // todo refactor
-            $image_file = $this->getItemImage($import, $filename, $record);
-
-            if ($image_file) {
-                $this->uploadImage($item, $image_file);
-                $item->has_image = true;
-                $import_record->imported_images++;
-
-                $iip_img = $this->getItemIipImage($filename, $image_file);
-
-                $iip_url = 'http://www.webumenia.sk/fcgi-bin/iipsrv.fcgi?DeepZoom=' . $iip_img;
-                if (isValidURL($iip_url)) {
-                    $item->iipimg_url = $iip_img;
-                    $import_record->imported_iip++;
-                }
-            }
-
+            $item = $this->importSingle($record, $import, $import_record);
             $item->save();
-            $import_record->imported_items++;
-
             $items[] = $item;
         }
 
@@ -107,6 +101,67 @@ abstract class AbstractImporter {
         return $items;
     }
 
+    /**
+     * @param array $record
+     * @param Import $import
+     * @param ImportRecord $importRecord
+     * @return Item|null
+     */
+    protected function importSingle(array $record, Import $import, ImportRecord $import_record) {
+        try {
+            $item = $this->createItem($record);
+            $import_record->imported_items++;
+        } catch (\Exception $e) {
+            $import_record->wrong_items++;
+            // todo log exception
+            return null;
+        }
+
+        $image_filename = $this->getItemImageFilename($record);
+
+        $image_path = $this->getItemImagePath(
+            $import,
+            $import_record->filename,
+            $image_filename
+        );
+        if ($image_path === false) {
+            return $item;
+        }
+
+        $this->uploadImage($item, $image_path);
+        $import_record->imported_images++;
+
+        $remote_path = $this->getItemIipImageUrl($import_record->filename, $image_filename);
+        if (!$this->testIipImageUrl($remote_path)) {
+            return $item;
+        }
+
+        $item->iipimg_url = $remote_path;
+        $import_record->imported_iip++;
+
+        return $item;
+    }
+
+    /**
+     * @param string $remote_path
+     * @return bool
+     */
+    protected function testIipImageUrl($remote_path) {
+        $iipimg_url = sprintf(
+            $this->iipimg_url_format,
+            $remote_path
+        );
+
+        return isValidURL($iipimg_url);
+    }
+
+    /**
+     * @param int $import_id
+     * @param string $status
+     * @param string $started_at
+     * @param string $filename
+     * @return ImportRecord
+     */
     protected function createImportRecord($import_id, $status, $started_at, $filename) {
         $import_record = new ImportRecord();
         $import_record->import_id = $import_id;
@@ -167,7 +222,7 @@ abstract class AbstractImporter {
      * @param array $record
      */
     protected function applyCustomHydrators(Item $item, array $record) {
-        foreach ($item->toArray() as $key => $value) {
+        foreach ($item->getFillable() as $key) {
             $method_name = sprintf('hydrate%s', camel_case($key));
             if (method_exists($this, $method_name)) {
                 $item->$key = $this->$method_name($record);
@@ -188,41 +243,43 @@ abstract class AbstractImporter {
     }
 
     /**
-     * @param Import $import
-     * @param string $filename
-     * @param array $record
-     * @return string
-     */
-    protected function getItemImage(Import $import, $filename, array $record) {
-        $path = sprintf(
-            '%s/import/%s/%s/%s*.{jpg,jpeg,JPG,JPEG}',
-            storage_path(),
-            $import->dir_path,
-            $filename,
-            $this->getItemImageFilename($record)
-        );
-
-        $images =glob($path, GLOB_BRACE);
-        return reset($images);
-    }
-
-    /**
      * @param Item $item
-     * @param array $file
+     * @param string $path
      * @return Image
      */
-    protected function uploadImage($item, $file) {
-        $uploaded_image = \Image::make(storage_path('app/' . $file['path']));
+    protected function uploadImage(Item $item, $path) {
+        $uploaded_image = \Image::make($path);
 
+        // todo do not resize image here
         if ($uploaded_image->width() > $uploaded_image->height()) {
-            $uploaded_image->widen(self::IMAGE_MAX_SIZE);
+            $uploaded_image->widen($this->image_max_size);
         } else {
-            $uploaded_image->heighten(self::IMAGE_MAX_SIZE);
+            $uploaded_image->heighten($this->image_max_size);
         }
 
         $item->removeImage();
 
         $save_as = $item->getImagePath($full = true);
-        return $uploaded_image->save($save_as);
+        $uploaded_image->save($save_as);
+
+        $item->has_image = true;
+    }
+
+    /**
+     * @param Import $import
+     * @param string $filename
+     * @param array $record
+     * @return string
+     */
+    protected function getItemImagePath(Import $import, $csv_filename, $image_filename) {
+        $path = storage_path(sprintf(
+            'app/import/%s/%s/%s.{jpg,jpeg,JPG,JPEG}',
+            $import->dir_path,
+            basename($csv_filename, '.csv'),
+            $image_filename
+        ));
+
+        $images = glob($path, GLOB_BRACE);
+        return reset($images);
     }
 }

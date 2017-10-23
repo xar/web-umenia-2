@@ -3,11 +3,11 @@
 namespace Tests;
 
 use App\Import;
-use App\Importers\CsvRepository;
+use App\Repositories\CsvRepository;
 use App\Importers\MgImporter;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 
-class MgImporterTest extends \TestCase
+class MgImporterTest extends TestCase
 {
     use DatabaseMigrations;
 
@@ -42,15 +42,17 @@ class MgImporterTest extends \TestCase
         $repositoryMock = $this->getMock(CsvRepository::class);
         $repositoryMock->method('getFiltered')->willReturn($records);
 
+        $this->importer = new MgImporter($repositoryMock);
+
         $importMock = $this->getMock(Import::class, ['getAttribute']);
         $importMock->method('getAttribute')->willReturn(1);
+        $file = ['basename' => '', 'path' => ''];
 
-        $this->importer = new MgImporter($repositoryMock);
-        $items = $this->importer->import($importMock, ['basename' => '']);
+        $items = $this->importer->import($importMock, $file);
 
         $this->assertCount(1, $items);
 
-        $expectedValues = [
+        $expected = [
             'id' => 'CZE:MG.rada_s_0-lomeni_s',
             'acquisition_date' => 2017,
             'copyright_expires' => 'datexp',
@@ -73,8 +75,8 @@ class MgImporterTest extends \TestCase
             'measurement' => 'šířka 4,6 cm; délka 6 cm; výška hlavní části 2 cm',
         ];
 
-        foreach ($expectedValues as $key => $value) {
-            $this->assertEquals($items[0]->$key, $value);
+        foreach ($expected as $key => $value) {
+            $this->assertEquals($value, $items[0]->$key);
         }
     }
 }

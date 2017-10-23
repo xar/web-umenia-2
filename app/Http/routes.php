@@ -41,7 +41,7 @@ Route::pattern('subdomain', '(test.sbirky|sbirky)');
 Route::group(['domain' => '{subdomain}.moravska-galerie.{tld}'], function () {
 
     Config::set('app.locale', 'cs');
-    Config::set('request.domain', 'mg');
+//    Config::set('request.domain', 'mg');
 
 
     Route::get('/', function () {

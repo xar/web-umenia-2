@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Importers\CsvRepository;
-use App\Importers\MgImporter;
+use App\Importers\NgImporter;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use App\Item;
 use App\Import;
 use App\ImportRecord;
+use App\Importers\MgImporter;
+use App\Repositories\CsvRepository;
 use League\Csv\Reader;
 
 class ImportController extends Controller
@@ -121,7 +123,9 @@ class ImportController extends Controller
             // }
             $import->save();
 
+            // todo remove
             if (Input::hasFile('file')) {
+                /** @var UploadedFile $file */
                 $file = Input::file('file');
                 return $this->launch($import, $file);
             }
@@ -153,8 +157,8 @@ class ImportController extends Controller
 
         \Debugbar::disable();
 
-        $importer = new MgImporter(new CsvRepository());
-        $importer->import($file);
+        $importer = new NgImporter(new CsvRepository());
+        $importer->import($import, $file);
 
 
         if (\App::runningInConsole()) {

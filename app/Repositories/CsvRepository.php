@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Importers;
+namespace App\Repositories;
 
+use League\Csv\Reader;
 
-class CsvRepository implements IRepository {
+class CsvRepository implements IFileRepository {
 
     public function getAll($file, array $options = []) {
         $reader = $this->createReader($file, $options);
 
         $headers = $reader->fetchOne();
+        $headers = $this->uniquifyHeaders($headers);
         $records = $reader->setOffset(1)->fetchAssoc($headers);
 
         return $records;
@@ -17,6 +19,26 @@ class CsvRepository implements IRepository {
     public function getFiltered($file, array $filters, array $options = []) {
         $all = $this->getAll($file, $options);
         return $this->filter($all, $filters);
+    }
+
+    /**
+     * @param array $headers
+     * @return array
+     */
+    protected function uniquifyHeaders(array $headers) {
+        $used = [];
+        $uniquified = [];
+
+        foreach ($headers as $h => $header) {
+            for ($i = 0; isset($used[$header]); $i++) {
+                $header = sprintf('%s_%s', $headers[$h], $i);
+            }
+
+            $used[$header] = true;
+            $uniquified[] = $header;
+        }
+
+        return $uniquified;
     }
 
     /**

@@ -4,6 +4,8 @@
 namespace App\Importers;
 
 
+use App\Repositories\IFileRepository;
+
 class MgImporter extends AbstractImporter {
 
     protected $options = [
@@ -11,7 +13,7 @@ class MgImporter extends AbstractImporter {
         'enclosure' => '"',
         'escape' => '\\',
         'newline' => "\r\n",
-        'input_encoding' => 'CP1250'
+        'input_encoding' => 'CP1250',
     ];
 
     protected $mapping = [
@@ -89,7 +91,9 @@ class MgImporter extends AbstractImporter {
         'cm' => ' cm',
     ];
 
-    public function __construct(IRepository $repository) {
+    protected $name = 'mg';
+
+    public function __construct(IFileRepository $repository) {
         parent::__construct($repository);
 
         $this->filters[] = function (array $record) {
@@ -119,11 +123,11 @@ class MgImporter extends AbstractImporter {
         return $filename;
     }
 
-    protected function getItemIipImage($filename, $image_file) {
+    protected function getItemIipImageUrl($csv_filename, $image_filename) {
         return sprintf(
             'MGHQ/%s/%s.jp2',
-            basename($filename, '.csv'),
-            $image_file['filename'].'.jp2'
+            basename($csv_filename, '.csv'),
+            $image_filename
         );
     }
 
