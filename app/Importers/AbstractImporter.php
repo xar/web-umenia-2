@@ -2,29 +2,35 @@
 
 namespace App\Importers;
 
-
 use App\Item;
-use League\Csv\Reader;
 
-abstract class AbstractImporter
-{
+
+abstract class AbstractImporter {
+
+    /** @var callable[] */
     protected $sanitizers = [];
 
+    /** @var callable[] */
     protected $filters = [];
 
+    /** @var array */
     protected $mapping = [];
 
+    /** @var array */
     protected $defaults = [];
 
-    protected $options = [];
+    /** @var IRepository */
+    protected $repository;
 
-    public function __construct() {
-        $this->registerSanitizers();
-        $this->registerFilters();
+    /**
+     * @param IRepository $repository
+     */
+    public function __construct(IRepository $repository) {
+        $this->repository = $repository;
     }
 
     /**
-     * @param \Iterator $record
+     * @param array $record
      * @return mixed
      */
     abstract protected function getItemId(array $record);
@@ -34,10 +40,7 @@ abstract class AbstractImporter
      * @return Item[]
      */
     public function import($file) {
-        $reader = $this->createReader($file);
-
-        $headers = $reader->fetchOne();
-        $records = $reader->setOffset(1)->fetchAssoc($headers);
+        $records = $this->repository->getAll($file, $this->options);
         $records = $this->filter($records);
 
         foreach ($records as $record) {
@@ -56,41 +59,6 @@ abstract class AbstractImporter
         }
 
         return $items;
-    }
-
-    /**
-     * @param string $file
-     * @return Reader
-     */
-    protected function createReader($file) {
-        $reader = Reader::createFromPath($file);
-
-        if (isset($this->options['delimiter'])) {
-            $reader->setDelimiter($this->options['delimiter']);
-        }
-
-        if (isset($this->options['enclosure'])) {
-            $reader->setEnclosure($this->options['enclosure']);
-        }
-
-        if (isset($this->options['escape'])) {
-            $reader->setEscape($this->options['escape']);
-        }
-
-        if (isset($this->options['newline'])) {
-            $reader->setNewline($this->options['newline']);
-        }
-
-        if (isset($this->options['input_encoding'])) {
-            if (!$reader->isActiveStreamFilter()) {
-                throw new \LogicException('Stream filter is not active');
-            }
-
-            $conversionFilter = $this->getConversionFilter($this->options['input_encoding']);
-            $reader->appendStreamFilter($conversionFilter);
-        }
-
-        return $reader;
     }
 
     /**
@@ -133,7 +101,7 @@ abstract class AbstractImporter
             }
         }
 
-        foreach ($item as $key => $value) {
+        foreach ($item->toArray() as $key => $value) {
             $method_name = sprintf('hydrate%s', camel_case($key));
             if (method_exists($this, $method_name)) {
                 $item->$key = $this->$method_name($record);
@@ -146,16 +114,4 @@ abstract class AbstractImporter
             }
         }
     }
-
-    /**
-     * @param string $input_encoding
-     * @return string
-     */
-    protected function getConversionFilter($input_encoding) {
-        return sprintf('convert.iconv.%s/UTF-8', $input_encoding);
-    }
-
-    protected function registerSanitizers() {}
-
-    protected function registerFilters() {}
 }

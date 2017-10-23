@@ -26,7 +26,8 @@
         "mcamara/laravel-localization": "1.2.*",
         "dimsav/laravel-translatable": "6.*",
         "league/csv": "^8.1",
-        "predis/predis": "^1.1"
+        "predis/predis": "^1.1",
+        "doctrine/dbal": "^2.5"
     },
     "autoload": {
         "classmap": [

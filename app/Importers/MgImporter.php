@@ -4,8 +4,8 @@
 namespace App\Importers;
 
 
-class MgImporter extends AbstractImporter
-{
+class MgImporter extends AbstractImporter {
+
     protected $options = [
         'delimiter' => ';',
         'enclosure' => '"',
@@ -89,20 +89,20 @@ class MgImporter extends AbstractImporter
         'cm' => ' cm',
     ];
 
-    protected function getItemId(array $record) {
-        return sprintf('CZE:MG.%s_%s', $record['Rada_S'], (int)$record['PorC_S']);
-    }
+    public function __construct(IRepository $repository) {
+        parent::__construct($repository);
 
-    protected function registerFilters() {
         $this->filters[] = function (array $record) {
             return $record['Plus2T'] != 'ODPIS';
         };
-    }
 
-    protected function registerSanitizers() {
         $this->sanitizers[] = function ($value) {
             return empty_to_null($value);
         };
+    }
+
+    protected function getItemId(array $record) {
+        return sprintf('CZE:MG.%s_%s', $record['Rada_S'], (int)$record['PorC_S']);
     }
 
     protected function hydrateIdentifier(array $record) {

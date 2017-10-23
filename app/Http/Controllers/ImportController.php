@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Importers\CsvRepository;
 use App\Importers\MgImporter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -139,7 +140,8 @@ class ImportController extends Controller
      * @param  int  $id
      * @return Response
      */
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $import = Import::find($id);
         $name = $import->name;
         $import->delete();
@@ -151,7 +153,7 @@ class ImportController extends Controller
 
         \Debugbar::disable();
 
-        $importer = new MgImporter();
+        $importer = new MgImporter(new CsvRepository());
         $importer->import($file);
 
 
@@ -237,7 +239,7 @@ class ImportController extends Controller
                 if (empty($row['PorC_S']) || !is_numeric($row['PorC_S'])) {
                     $this_import_record->wrong_items++;
                     // echo($id . ' ' . $row['Rada_S']. $row['PorC_S'] . "\n");
-                } elseif ($row['Plus2T']!='ODPIS') {//
+                } elseif ($row['Plus2T']!='ODPIS') {
 
                     $gallery = 'Moravská galerie, MG';
                     $prefix = 'CZE:MG.';
