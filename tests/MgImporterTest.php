@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Import;
 use App\Importers\CsvRepository;
 use App\Importers\MgImporter;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -36,18 +37,21 @@ class MgImporterTest extends \TestCase
             'Lomeni_S' => 'lomeni_s',
         ];
 
-        $repositoryMock = $this->getMock(CsvRepository::class);
-
         $records = new \ArrayIterator([$data]);
-        $repositoryMock->method('getAll')->willReturn($records);
+
+        $repositoryMock = $this->getMock(CsvRepository::class);
+        $repositoryMock->method('getFiltered')->willReturn($records);
+
+        $importMock = $this->getMock(Import::class, ['getAttribute']);
+        $importMock->method('getAttribute')->willReturn(1);
 
         $this->importer = new MgImporter($repositoryMock);
-        $items = $this->importer->import($file = '');
+        $items = $this->importer->import($importMock, ['basename' => '']);
 
         $this->assertCount(1, $items);
 
         $expectedValues = [
-            'id' => 'CZE:MG.rada_s_0',
+            'id' => 'CZE:MG.rada_s_0-lomeni_s',
             'acquisition_date' => 2017,
             'copyright_expires' => 'datexp',
             'dating' => 'datace',

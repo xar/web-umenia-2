@@ -102,14 +102,35 @@ class MgImporter extends AbstractImporter {
     }
 
     protected function getItemId(array $record) {
-        return sprintf('CZE:MG.%s_%s', $record['Rada_S'], (int)$record['PorC_S']);
+        $id = sprintf('CZE:MG.%s_%s', $record['Rada_S'], (int)$record['PorC_S']);
+        if ($record['Lomeni_S'] != '_') {
+            $id = sprintf('%s-%s', $id, $record['Lomeni_S']);
+        }
+
+        return $id;
+    }
+
+    protected function getItemImageFilename(array $record) {
+        $filename = sprintf('%s%s', $record['Rada_S'], str_pad($record['PorC_S'], 6, '0', STR_PAD_LEFT));
+        if ($record['Lomeni_S'] != '_') {
+            $filename = sprintf('%s-%s', $filename, $record['Lomeni_S']);
+        }
+
+        return $filename;
+    }
+
+    protected function getItemIipImage($filename, $image_file) {
+        return sprintf(
+            'MGHQ/%s/%s.jp2',
+            basename($filename, '.csv'),
+            $image_file['filename'].'.jp2'
+        );
     }
 
     protected function hydrateIdentifier(array $record) {
-        $identifier = $record['Rada_S'] . ' ' . (int)$record['PorC_S'];
-        $suffix = ($record['Lomeni_S'] != '_') ? $record['Lomeni_S'] : '';
-        if ($suffix) {
-            $identifier .= '/' . $suffix;
+        $identifier = sprintf('%s %s', $record['Rada_S'], (int)$record['PorC_S']);
+        if ($record['Lomeni_S'] != '_') {
+            $identifier = sprintf('%s/%s', $identifier, $record['Lomeni_S']);
         }
 
         return $identifier;
