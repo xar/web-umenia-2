@@ -1,0 +1,41 @@
+version: "3"
+
+# see .env file for docker-compose ENV variables required for proper run
+
+services:
+  app: 
+    build: "./Docker/php.dockerfile"
+    domainname: "web-umenia.dev"
+    ports:
+      - "8081:8080"
+    volumes:
+      - ".:/var/www/app:rw"
+      - "composer-data:/composer:rw"
+    depends_on:
+      - "mysql"
+    restart: "unless-stopped"
+
+  mysql:
+    image: "mysql:latest"
+    volumes:
+      - "mysql-data:/var/lib/mysql"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      MYSQL_ROOT_PASSWORD: "webUmeniaSecret"
+      MYSQL_DATABASE: "webumenia"
+    ports:
+      - "3306"
+    restart: "unless-stopped"
+
+networks:
+  default:
+
+volumes:
+  npm-data:
+    driver: "local"
+  mysql-data:
+    driver: "local"
+  composer-data:
+    driver: "local"
+
+
